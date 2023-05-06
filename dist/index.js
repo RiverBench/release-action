@@ -493,7 +493,7 @@ class GithubArtifactUploader {
             catch (error) {
                 if (error.status >= 500 && retry < 50) {
                     const waitSeconds = Math.min(Math.pow(2, retry), 60);
-                    core.warning(`Failed to upload artifact ${artifact.name}. ${error.message}. Retrying after ${waitSeconds}...`);
+                    core.warning(`Failed to upload artifact ${artifact.name}. ${error.message}. Retrying after ${waitSeconds} second${waitSeconds > 1 ? 's' : ''}...`);
                     yield new Promise(
                       resolve => setTimeout(resolve, waitSeconds * 1000)
                     ).then(
