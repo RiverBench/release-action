@@ -484,16 +484,21 @@ class GithubArtifactUploader {
             }
         });
     }
-    uploadArtifact(artifact, releaseId, uploadUrl, retry = 3) {
+    uploadArtifact(artifact, releaseId, uploadUrl, retry = 0) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 core.debug(`Uploading artifact ${artifact.name}...`);
                 yield this.releases.uploadArtifact(uploadUrl, artifact.contentLength, artifact.contentType, artifact.readFile(), artifact.name, releaseId);
             }
             catch (error) {
-                if (error.status >= 500 && retry > 0) {
-                    core.warning(`Failed to upload artifact ${artifact.name}. ${error.message}. Retrying...`);
-                    yield this.uploadArtifact(artifact, releaseId, uploadUrl, retry - 1);
+                if (error.status >= 500 && retry < 50) {
+                    const waitSeconds = Math.max(Math.pow(2, retry), 32);
+                    core.warning(`Failed to upload artifact ${artifact.name}. ${error.message}. Retrying after ${waitSeconds}...`);
+                    yield new Promise(
+                      resolve => setTimeout(resolve, waitSeconds * 1000)
+                    ).then(
+                      () => this.uploadArtifact(artifact, releaseId, uploadUrl, retry - 1)
+                    );
                 }
                 else {
                     if (this.throwsUploadErrors) {
