@@ -497,7 +497,7 @@ class GithubArtifactUploader {
                     yield new Promise(
                       resolve => setTimeout(resolve, waitSeconds * 1000)
                     ).then(
-                      () => this.uploadArtifact(artifact, releaseId, uploadUrl, retry - 1)
+                      () => this.uploadArtifact(artifact, releaseId, uploadUrl, retry + 1)
                     );
                 }
                 else {
